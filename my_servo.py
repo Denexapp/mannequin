@@ -9,7 +9,7 @@ class Servo:
         self.pin = pin
         self.freq = 20
 
-        self.pwm = GPIO.pwm(pin, self.freq)
+        self.pwm = GPIO.PWM(pin, self.freq)
 
     def start(self, duty_cycle):
         self.pwm.start(duty_cycle)

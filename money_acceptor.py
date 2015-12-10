@@ -1,8 +1,9 @@
+import time
 import serial
 import threading
 import denexapp_config as dconfig
 
-class money_acceptor():
+class money_acceptor(threading.Thread):
     replies = {
     0x80: "[Device start byte]",
     0x8f: "Power supply on / Bill verified",
@@ -26,7 +27,7 @@ class money_acceptor():
     0x29: "Bill reject",
     0x2A: "Invalid command",
     0x2E: "Reserved",
-    0x2F: "Enable acceptor response",
+    0x2F: "Exception has been recovered",
     0x5E: "Disable acceptor response",}
 
     reverse_replies = {}
@@ -44,7 +45,9 @@ class money_acceptor():
     }
 
     def __init__(self):
-        self.accept_money = False
+        threading.Thread.__init__(self)
+        self.accept_money_var = False
+        print "Init: self.accept_money_var = False"
         self.ser = serial.Serial(dconfig.money_device, 9600)
 
     def send(self,command):
@@ -53,22 +56,33 @@ class money_acceptor():
 
     def read(self):
         message = ord(self.ser.read())
-        print "<-", message
+        if message in self.replies.keys():
+            print "<-", message, self.replies[message]
+        else:
+            print "<-", message
         return message
 
     def start_working(self):
-        self.thread = threading.Thread(target=self.__start_working_action())
-        self.thread.daemon = True
-        self.thread.start()
+        # self.thread = threading.Thread(target=self.__start_working_action())
+        # self.thread.daemon = True
+        # self.thread.start()
+        self.__start_working_action()
+        print "start_working finished"
 
     def accept_money(self):
-        self.accept_money = True
+        self.accept_money_var = True
+        print "accept_money: self.accept_money_var = True"
 
     def reject_money(self):
-        self.accept_money = False
+        self.accept_money_var = False
+
+    def run(self):
+        self.__start_working_action()
 
     def __start_working_action(self):
+        print "Money acceptor working thread started"
         while True:
+            time.sleep(0.01)
             if self.ser.inWaiting():
                 response = self.read()
 
@@ -82,13 +96,24 @@ class money_acceptor():
                     self.send("accept")
 
                 #accept a bill
-                if response == bytearray(self.reverse_replies["[Bill byte]"]):
-                    print "Got money"
+                if response == self.reverse_replies["[Bill byte]"]:
                     after_bill_byte = self.read()
-                    if self.accept_money:
-                        if after_bill_byte == replies
-                        self.send("accept")
+                    if self.accept_money_var:
+                        if after_bill_byte == self.reverse_replies["Bill value 1"]:
+                            self.send("accept")
+                        elif after_bill_byte == self.reverse_replies["Bill value 2"]:
+                            self.send("accept")
+                        elif after_bill_byte == self.reverse_replies["Bill value 3"]:
+                            self.send("accept")
+                        else:
+                            pass
+                            #self.send("get_status")
                     else:
-                        self.send("reject")
+                        print "accept_money_var is ", self.accept_money_var
+                        #self.send("reject")
+                # if response == self.reverse_replies["Exception has been recovered"]:
+                #     self.send("enable")
+                if response == 254:
+                    self.send("get_status")
 
-                     print "Accept sent"
+
