@@ -8,7 +8,7 @@ import threading
 import time
 import math
 from RPIO import PWM
-from my_servo import Servo()
+from my_servo import Servo
 
 class breathing():
     servo = Servo(dconfig.breathing_pin)
