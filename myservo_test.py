@@ -1,5 +1,6 @@
 import my_servo
-
-a = my_servo.Servo(24)
+pin = input('Enter pin')
+a = my_servo.Servo(int(pin))
 while True:
-    a.start(20)
+    val = input('Enter value')
+    a.start(int(val))

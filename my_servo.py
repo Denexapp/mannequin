@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 
-
 class Servo:
     def __init__(self, pin):
         GPIO.setmode(GPIO.BCM)
@@ -19,7 +18,3 @@ class Servo:
 
     def stop(self):
         self.pwm.stop()
-
-
-
-

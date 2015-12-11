@@ -14,7 +14,6 @@ where
 import subprocess
 import time
 import threading
-from RPi.GPIO import PWM
 import denexapp_config as dconfig
 from my_servo import Servo
 
@@ -47,16 +46,16 @@ class speech():
         now = time.time()
         while now < middle_time:
             k = (now - start_time)/delta_t
-            print("Setting this to servo ", round((dconfig.mouth_closed + delta_p*k)/10)*10)
-            self.servo.start(dconfig.mouth_closed)
+            print("Setting this to servo ", dconfig.mouth_closed + delta_p*k)
+            self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
             if self.stop:
                 break
         while now < end_time:
             k = 1 - (now - middle_time)/delta_t
-            print("Setting this to servo ", round((dconfig.mouth_closed + delta_p*k)/10)*10)
-            self.servo.start(dconfig.mouth_closed)
+            print("Setting this to servo ", dconfig.mouth_closed + delta_p*k)
+            self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
             if self.stop:

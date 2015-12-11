@@ -7,7 +7,6 @@ import denexapp_config as dconfig
 import threading
 import time
 import math
-from RPIO import PWM
 from my_servo import Servo
 
 class breathing():
