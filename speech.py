@@ -16,15 +16,16 @@ import time
 import threading
 from RPi.GPIO import PWM
 import denexapp_config as dconfig
+from my_servo import Servo
 
 class speech():
-    servo = PWM.Servo()
+    servo = Servo(dconfig.mouth_pin)
     stop = False
     stopped = True
 
     def __init__(self):
         #turn to default position
-        self.servo.set_servo(dconfig.mouth_pin, round((dconfig.mouth_closed)/10)*10)
+        self.servo.start(dconfig.mouth_closed)
         print "Speech.init ended"
         self.player = False
 
@@ -47,7 +48,7 @@ class speech():
         while now < middle_time:
             k = (now - start_time)/delta_t
             print("Setting this to servo ", round((dconfig.mouth_closed + delta_p*k)/10)*10)
-            self.servo.set_servo(dconfig.mouth_pin, round((dconfig.mouth_closed + delta_p*k)/10)*10)
+            self.servo.start(dconfig.mouth_closed)
             time.sleep(0.03)
             now = time.time()
             if self.stop:
@@ -55,13 +56,13 @@ class speech():
         while now < end_time:
             k = 1 - (now - middle_time)/delta_t
             print("Setting this to servo ", round((dconfig.mouth_closed + delta_p*k)/10)*10)
-            self.servo.set_servo(dconfig.mouth_pin, round((dconfig.mouth_closed + delta_p*k)/10)*10)
+            self.servo.start(dconfig.mouth_closed)
             time.sleep(0.03)
             now = time.time()
             if self.stop:
                 break
         print("Setting this to servo ", dconfig.mouth_closed)
-        self.servo.set_servo(dconfig.mouth_pin, dconfig.mouth_closed)
+        self.servo.start(dconfig.mouth_closed)
 
     def __say_action(self,sound_path, markup):
         if self.player:

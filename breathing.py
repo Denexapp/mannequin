@@ -8,19 +8,20 @@ import threading
 import time
 import math
 from RPIO import PWM
+from my_servo import Servo()
 
 class breathing():
-    servo = PWM.Servo()
+    servo = Servo(dconfig.breathing_pin)
     stop = False
     range = dconfig.breathing_max - dconfig.breathing_min
     counter = (dconfig.breathing_min - dconfig.breathing_max)/range*math.pi
-    direction = math.copysign(1,dconfig.breathing_max-dconfig.breathing_min)
+    direction = math.copysign(1,dconfig.breathing_max - dconfig.breathing_min)
     position = dconfig.breathing_min
     delta = 2*math.pi/dconfig.breathing_time*30
 
     def __init__(self):
         #turn to default position
-        self.servo.set_servo(dconfig.breathing_pin, round((dconfig.breathing_min)/10)*10)
+        self.servo.start(dconfig.breathing_min)
         print "Init breath started"
 
     def start_move(self):
@@ -45,7 +46,7 @@ class breathing():
                 if self.counter + self.delta*self.direction > 0:
                     self.direction = -1
             self.position = (math.cos(self.counter)*0.5+0.5)*self.range+dconfig.breathing_min
-            self.servo.set_servo(dconfig.breathing_pin, round((self.position)/10)*10)
+            self.servo.start(self.position)
             time.sleep(0.03)
         """direct = 1
         val = 1000
@@ -68,7 +69,7 @@ class breathing():
         while (math.cos(self.counter+self.delta*self.direction)*0.5+0.5)*self.range+dconfig.breathing_min > dconfig.breathing_min:
             self.counter+=self.delta*self.direction
             self.position = (math.cos(self.counter)*0.5+0.5)*self.range+dconfig.breathing_min
-            self.servo.set_servo(dconfig.breathing_pin, round((self.position)/10)*10)
+            self.servo.start(self.position)
             time.sleep(0.03)
             if self.stop == False:
                 break
