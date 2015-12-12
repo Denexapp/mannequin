@@ -3,4 +3,4 @@ pin = input('Enter pin')
 a = my_servo.Servo(int(pin))
 while True:
     val = input('Enter value')
-    a.start(int(val))
+    a.start(float(val))

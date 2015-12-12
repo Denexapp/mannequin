@@ -7,10 +7,10 @@ time should be in ms
 
 #Speech
 mouth_pin = 23
-mouth_closed = 800
-mouth_half_open = 1000
-mouth_open = 1200
-mouth_sound_time = 200
+mouth_closed = 2.5
+mouth_half_open = 2.8
+mouth_open = 3.1
+mouth_sound_time = 220
 
 #Speech repeat time
 repeat_time_whisper = 15000

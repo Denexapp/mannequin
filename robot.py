@@ -3,7 +3,6 @@ by Denexapp
 Uses some parts of Tony DiCola's pi-facerec-box project under MIT license
 """
 
-GPIO.cleanup()
 
 cash_money = 0
 # amount of money inside
@@ -12,9 +11,11 @@ cash_banknotes = 0
 cash_last_pay_time = time.time()
 # last time when a banknote was accepted
 
-#todo connect breathing and speech modules, make voice markup
-#todo ask when breathing should be used
+#todo connect speech module, make voice markup
+#todo make card_dispenser as class
 #todo set config values
+#todo money acceptor banknotes limit
+#todo connect money acceptor through uart
 
 import time
 import camera
@@ -25,6 +26,7 @@ import speech
 import led_payment
 import denexapp_config as dconfig
 import money_acceptor
+import speech_markup
 
 if __name__ == "__main__":
     user_position = 0
@@ -38,7 +40,7 @@ if __name__ == "__main__":
 
     camera_object = camera.camera()
     hand_object = hand.hand()
-    #breathing_object = breathing.breathing()
+    breathing_object = breathing.breathing()
     #speech_object = speech.speech()
     led_payment_object = led_payment.led_payment()
     money_acceptor_object = money_acceptor.money_acceptor()
@@ -57,6 +59,7 @@ if __name__ == "__main__":
                 time.sleep(0.2)
             if user_position == 0:
                 #whispering
+                breathing_object.stop_move()
                 last_whisper_time = time.time().__sub__(dconfig.repeat_time_whisper)
                 while True:
                     if time.time().__sub__(last_whisper_time) >= dconfig.repeat_time_whisper:
@@ -67,6 +70,7 @@ if __name__ == "__main__":
                     if user_position != 0 or payment_state != 0:
                         break
             elif user_position == 1:
+                breathing_object.start_move()
                 last_far_time = time.time().__sub__(dconfig.repeat_time_far)
                 while True:
                     if time.time().__sub__(last_far_time) >= dconfig.repeat_time_far:
@@ -77,6 +81,7 @@ if __name__ == "__main__":
                     if user_position != 1 or payment_state != 0:
                         break
             elif user_position == 2:
+                breathing_object.start_move()
                 last_close_time = time.time().__sub__(dconfig.repeat_time_close)
                 while True:
                     if time.time().__sub__(last_close_time) >= dconfig.repeat_time_close:
@@ -88,6 +93,7 @@ if __name__ == "__main__":
                         break
         elif payment_state == 1:
             led_payment_object.start_blink()
+            breathing_object.start_move()
             money_acceptor_object.accept_money()
             last_pay_time = cash_last_pay_time
             last_paymore_speech_time = time.time().__sub__(dconfig.repeat_time_pay_more)
@@ -117,12 +123,14 @@ if __name__ == "__main__":
                 time.sleep(0.2)
         elif payment_state == 2:
             led_payment_object.stop_blink()
+            breathing_object.start_move()
             money_acceptor_object.reject_money()
             #speech_object.say("","")
             #todo add sound
             hand_object.start_move()
             time.sleep(10)
             hand_object.stop_move()
+            breathing_object.stop_move()
             payment_state = 0
             last_magic_time = time.time()
     print "End"

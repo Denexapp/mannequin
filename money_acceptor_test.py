@@ -1,6 +1,5 @@
 import money_acceptor
 import time
-import sys
 
 money_acceptor_object = money_acceptor.money_acceptor()
 money_acceptor_object.start()

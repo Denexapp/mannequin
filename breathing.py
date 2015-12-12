@@ -11,7 +11,7 @@ from my_servo import Servo
 
 class breathing():
     servo = Servo(dconfig.breathing_pin)
-    stop = False
+    stop = True
     range = dconfig.breathing_max - dconfig.breathing_min
     counter = (dconfig.breathing_min - dconfig.breathing_max)/range*math.pi
     direction = math.copysign(1,dconfig.breathing_max - dconfig.breathing_min)
@@ -24,9 +24,10 @@ class breathing():
         print "Init breath started"
 
     def start_move(self):
-        thread = threading.Thread(target=self.__start_move_action)
-        thread.daemon = True
-        thread.start()
+        if self.stop == True:
+            thread = threading.Thread(target=self.__start_move_action)
+            thread.daemon = True
+            thread.start()
 
     def stop_move(self):
         thread = threading.Thread(target=self.__stop_move_action)
@@ -72,4 +73,6 @@ class breathing():
             time.sleep(0.03)
             if self.stop == False:
                 break
+        if self.stop == True:
+            self.servo.stop()
         print "Stop breathing action stoped"

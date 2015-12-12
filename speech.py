@@ -36,7 +36,7 @@ class speech():
         print "Speech.say ended"
 
     def __phrase(self,sound_time_milisecons, angle):
-        print("Phrase to angle ", angle, " with time ", sound_time_milisecons, " started.")
+        print "Phrase to angle", angle, "with time", sound_time_milisecons, "started."
         sound_time = float(sound_time_milisecons) / 1000
         start_time = time.time()
         middle_time = start_time + (sound_time/2)
@@ -46,7 +46,7 @@ class speech():
         now = time.time()
         while now < middle_time:
             k = (now - start_time)/delta_t
-            print("Setting this to servo ", dconfig.mouth_closed + delta_p*k)
+            print "Setting this to servo", dconfig.mouth_closed + delta_p*k
             self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
@@ -54,13 +54,13 @@ class speech():
                 break
         while now < end_time:
             k = 1 - (now - middle_time)/delta_t
-            print("Setting this to servo ", dconfig.mouth_closed + delta_p*k)
+            print "Setting this to servo", dconfig.mouth_closed + delta_p*k
             self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
             if self.stop:
                 break
-        print("Setting this to servo ", dconfig.mouth_closed)
+        print "Setting this to servo", dconfig.mouth_closed
         self.servo.start(dconfig.mouth_closed)
 
     def __say_action(self,sound_path, markup):
@@ -73,7 +73,7 @@ class speech():
         self.stop = False
         self.stopped = False
         sounds = markup.split(" ")
-        self.player = subprocess.Popen(["mpg321",sound_path])
+        self.player = subprocess.Popen(["mpg321","sounds/"+sound_path])
         for sound in sounds:
             if self.stop:
                 break
@@ -83,18 +83,19 @@ class speech():
                 elif sound == "2":
                     self.__phrase(dconfig.mouth_sound_time,dconfig.mouth_open)
                 else:
-                    time.sleep(int(sound)/1000)
+                    print "Sleep for", float(sound)/1000, "started"
+                    time.sleep(float(sound)/1000)
             else:
                 sound_parts = sound.split("~")
                 mouth_state = int(sound_parts[0])
-                sound_time = int(sound_parts[1])
-                #print("Sound_time is ", sound_time)
+                sound_time = float(sound_parts[1])
                 if mouth_state == 1:
                     self.__phrase(sound_time,dconfig.mouth_half_open)
                 elif mouth_state == 2:
                     self.__phrase(sound_time,dconfig.mouth_open)
                 else:
                     pass
+        self.servo.stop()
         self.stop = False
         self.stopped = True
-        print("Speech() in speech.py came to the end")
+        print "Speech() in speech.py came to the end"
