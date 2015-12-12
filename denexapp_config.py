@@ -18,7 +18,10 @@ repeat_time_far = 15000
 repeat_time_close = 15000
 repeat_time_pay_more = 20000
 
-#payment
+#Magic
+magic_duration = 40000
+
+#Payment
 payment_price = 100
 payment_timeout = 5*60*1000
 payment_afterpay_time = 60*1000
@@ -50,3 +53,5 @@ led_payment_period = 3000
 #Money acceptor
 money_device = "/dev/ttyUSB0"
 
+#Card_dispencer
+card_dispencer_pin = 4

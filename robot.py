@@ -3,7 +3,6 @@ by Denexapp
 Uses some parts of Tony DiCola's pi-facerec-box project under MIT license
 """
 
-
 cash_money = 0
 # amount of money inside
 cash_banknotes = 0
@@ -12,10 +11,10 @@ cash_last_pay_time = time.time()
 # last time when a banknote was accepted
 
 #todo connect speech module, make voice markup
-#todo make card_dispenser as class
 #todo set config values
 #todo money acceptor banknotes limit
 #todo connect money acceptor through uart
+#todo card dispenser limit
 
 import time
 import camera
@@ -26,6 +25,7 @@ import speech
 import led_payment
 import denexapp_config as dconfig
 import money_acceptor
+import card_dispenser
 import speech_markup
 
 if __name__ == "__main__":
@@ -43,9 +43,9 @@ if __name__ == "__main__":
     breathing_object = breathing.breathing()
     #speech_object = speech.speech()
     led_payment_object = led_payment.led_payment()
+    card_dispenser_object = card_dispenser.card_dispenser()
     money_acceptor_object = money_acceptor.money_acceptor()
     money_acceptor_object.start_working()
-
 
     print "Loop started"
     while True:
@@ -128,7 +128,8 @@ if __name__ == "__main__":
             #speech_object.say("","")
             #todo add sound
             hand_object.start_move()
-            time.sleep(10)
+            time.sleep(dconfig.magic_duration)
+            card_dispenser_object.give_card()
             hand_object.stop_move()
             breathing_object.stop_move()
             payment_state = 0
