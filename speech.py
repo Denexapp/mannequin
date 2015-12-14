@@ -18,16 +18,15 @@ import denexapp_config as dconfig
 from my_servo import Servo
 
 class speech():
-    servo = Servo(dconfig.mouth_pin)
-    stop = False
-    stopped = True
 
     def __init__(self):
         #turn to default position
+        self.servo = Servo(dconfig.mouth_pin)
         self.servo.start(dconfig.mouth_closed)
+        self.stop = False
+        self.stopped = True
         print "Speech.init ended"
         self.player = False
-
 
     def say(self,sound_path, markup):
         self.thread = threading.Thread(target=self.__say_action, args=(sound_path,markup))
@@ -73,15 +72,15 @@ class speech():
         self.stop = False
         self.stopped = False
         sounds = markup.split(" ")
-        self.player = subprocess.Popen(["mpg321","sounds/"+sound_path])
+        self.player = subprocess.Popen(["mpg321", "sounds/"+sound_path])
         for sound in sounds:
             if self.stop:
                 break
             if sound.find("~") == -1:
                 if sound == "1":
-                    self.__phrase(dconfig.mouth_sound_time,dconfig.mouth_half_open)
+                    self.__phrase(dconfig.mouth_sound_time, dconfig.mouth_half_open)
                 elif sound == "2":
-                    self.__phrase(dconfig.mouth_sound_time,dconfig.mouth_open)
+                    self.__phrase(dconfig.mouth_sound_time, dconfig.mouth_open)
                 else:
                     print "Sleep for", float(sound)/1000, "started"
                     time.sleep(float(sound)/1000)
@@ -95,7 +94,7 @@ class speech():
                     self.__phrase(sound_time,dconfig.mouth_open)
                 else:
                     pass
-        self.servo.stop()
+        self.servo.start(dconfig.mouth_closed)
         self.stop = False
         self.stopped = True
         print "Speech() in speech.py came to the end"

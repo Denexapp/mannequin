@@ -15,7 +15,7 @@ cash_last_pay_time = time.time()
 #todo connect speech module, make voice markup
 #todo set config values
 #todo connect money acceptor through uart
-#todo add way to increase limits
+#todo remove limits, use devices' api instead
 #todo make gsm module
 
 import time
@@ -142,4 +142,3 @@ if __name__ == "__main__":
             breathing_object.stop_move()
             payment_state = 0
             last_magic_time = time.time()
-    print "End"
