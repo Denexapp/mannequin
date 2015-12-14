@@ -15,6 +15,3 @@ class Servo:
 
     def update(self, duty):
         self.duty_cycle = duty
-
-    def stop(self):
-        self.pwm.stop()
