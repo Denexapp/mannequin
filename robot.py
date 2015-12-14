@@ -7,14 +7,16 @@ cash_money = 0
 # amount of money inside
 cash_banknotes = 0
 # amount of banknotes
+cash_session = 0
+# amount of money got during current session
 cash_last_pay_time = time.time()
 # last time when a banknote was accepted
 
 #todo connect speech module, make voice markup
 #todo set config values
-#todo money acceptor banknotes limit
 #todo connect money acceptor through uart
-#todo card dispenser limit
+#todo add way to increase limits
+#todo make gsm module
 
 import time
 import camera
@@ -49,6 +51,12 @@ if __name__ == "__main__":
 
     print "Loop started"
     while True:
+        if money_acceptor_object.able_to_work() and card_dispenser_object.able_to_work():
+            breathing_object.stop_move()
+            led_payment_object.stop_blink()
+            money_acceptor_object.reject_money()
+            while True:
+                time.sleep(3)
         if payment_state == 0:
             #todo ask should led_payment blink when human isn't close
             led_payment_object.start_blink()

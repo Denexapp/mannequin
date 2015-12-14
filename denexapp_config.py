@@ -52,6 +52,8 @@ led_payment_period = 3000
 
 #Money acceptor
 money_device = "/dev/ttyUSB0"
+money_capacity = 100
 
 #Card_dispencer
 card_dispencer_pin = 4
+card_dispenser_capacity = 30

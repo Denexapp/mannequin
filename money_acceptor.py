@@ -1,7 +1,9 @@
 import time
 import serial
 import threading
+import file_io
 import denexapp_config as dconfig
+import math
 
 class money_acceptor(threading.Thread):
     # this wasn't the best idea to use 4 globals here
@@ -35,7 +37,7 @@ class money_acceptor(threading.Thread):
         0x2A: "Invalid command",
         0x2E: "Reserved",
         0x2F: "Exception has been recovered",
-        0x5E: "Disable acceptor response",}
+        0x5E: "Disable acceptor response"}
 
     reverse_replies = {}
     for i, k in replies.items():
@@ -54,32 +56,15 @@ class money_acceptor(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.cash_last_pay_time = time.time()
-
-        try:
-            money_file = open("cash_inside_file")
-        except:
-            money_file = open("cash_inside_file","w")
-            money_file.write("0")
-            money_file.close()
-            money_file = open("cash_inside_file")
-        self.cash_inside = int(money_file.read())
-        money_file.close()
-
-        try:
-            money_file = open("cash_banknotes_file")
-        except:
-            money_file = open("cash_banknotes_file","w")
-            money_file.write("0")
-            money_file.close()
-            money_file = open("cash_banknotes_file")
-        self.cash_banknotes = int(money_file.read())
-        money_file.close()
-
+        self.cash_inside = file_io.read("cash_inside_file")
+        self.cash_banknotes = file_io.read("cash_banknotes_file")
         self.accept_money_var = False
-        print "Init: self.accept_money_var = False"
         self.ser = serial.Serial(dconfig.money_device, 9600)
 
-    def send(self,command):
+    def able_to_work(self):
+        return self.cash_banknotes <= (dconfig.money_capacity - math.ceil(dconfig.payment_price/10))
+
+    def send(self, command):
         print "->", command
         self.ser.write(chr(self.commands[command]))
 
@@ -91,28 +76,22 @@ class money_acceptor(threading.Thread):
             print "<-", message
         return message
 
-    def add_cash(self,value):
+    def add_cash(self, value):
         self.cash_inside += value
         self.cash_banknotes += 1
         self.cash_session += value
         self.cash_last_pay_time = time.time()
-        money_file = open("cash_inside_file","w")
-        money_file.write(str(self.cash_inside))
-        money_file.close()
-        money_file = open("cash_banknotes_file","w")
-        money_file.write(str(self.cash_banknotes))
-        money_file.close()
+        file_io.write("cash_inside_file", self.cash_inside)
+        file_io.write("cash_banknotes_file", self.cash_banknotes)
 
     def start_working(self):
         # self.thread = threading.Thread(target=self.__start_working_action())
         # self.thread.daemon = True
         # self.thread.start()
         self.__start_working_action()
-        print "start_working finished"
 
     def accept_money(self):
         self.accept_money_var = True
-        print "accept_money: self.accept_money_var = True"
 
     def reject_money(self):
         self.accept_money_var = False
@@ -121,7 +100,7 @@ class money_acceptor(threading.Thread):
         self.__start_working_action()
 
     def __start_working_action(self):
-        print "Money acceptor working thread started"
+        self.send("accept")
         while True:
             time.sleep(0.01)
             if self.ser.inWaiting():
@@ -130,7 +109,6 @@ class money_acceptor(threading.Thread):
                 # init
                 if response == self.reverse_replies["Power supply on / Bill verified"]:
                     self.send("accept")
-                    self.send("enable")
 
                 # disable inhibit mode
                 if response == self.reverse_replies["Communication failed"]:
@@ -139,6 +117,8 @@ class money_acceptor(threading.Thread):
                 #accept a bill
                 if response == self.reverse_replies["[Bill byte]"]:
                     after_bill_byte = self.read()
+                    if after_bill_byte == self.reverse_replies["[Power supply on / Bill verified]"]:
+                        after_bill_byte = self.read()
                     if self.accept_money_var:
                         if after_bill_byte == self.reverse_replies["Bill value 1"]:
                             self.send("accept")
@@ -150,12 +130,6 @@ class money_acceptor(threading.Thread):
                             self.send("accept")
                             self.add_cash(100)
                         else:
-                            pass
-                            #self.send("get_status")
+                            self.send("reject")
                     else:
-                        print "accept_money_var is ", self.accept_money_var
-                        #self.send("reject")
-                # if response == self.reverse_replies["Exception has been recovered"]:
-                #     self.send("enable")
-                if response == 254:
-                    self.send("get_status")
+                        self.send("reject")
