@@ -14,6 +14,7 @@ class camera():
     def __init__(self):
         self.camera = picam.OpenCVCapture()
         self.stop = False
+        self.user_position = 0
 
     def start_detection(self):
         thread = threading.Thread(target=self.__start_detection_action)
@@ -25,7 +26,6 @@ class camera():
 
     def __start_detection_action(self):
         self.stop=False
-        global user_position
         while True:
             image = self.camera.read()
             image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -34,17 +34,16 @@ class camera():
             result = self.detect_single(image)
             if result != None:
                 face_size = (result[2]+result[3])/2
-                print ("Face size is ",result[2],"x",result[3])
+                print ("Face size is ", result[2], "x", result[3])
                 if face_size >= dconfig.face_close_size:
-                    user_position = 2
-                    print "User is close"
+                    self.user_position = 2
+                    print "User is close", time.time()
                 else:
-                    user_position = 1
-                    print "User is far"
+                    self.user_position = 1
+                    print "User is far", time.time()
             else:
-                user_position = 0
-                print "User isn't seen"
-            print time.time()
+                self.user_position = 0
+                print "User isn't seen", time.time()
             if self.stop:
                 break
 

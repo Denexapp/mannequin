@@ -101,9 +101,11 @@ class money_acceptor(threading.Thread):
 
     def __start_working_action(self):
         self.send("accept")
+        print self.ser.name
         while True:
             time.sleep(0.01)
             if self.ser.inWaiting():
+                print "ser.inWaiting"
                 response = self.read()
 
                 # init
@@ -117,7 +119,7 @@ class money_acceptor(threading.Thread):
                 #accept a bill
                 if response == self.reverse_replies["[Bill byte]"]:
                     after_bill_byte = self.read()
-                    if after_bill_byte == self.reverse_replies["[Power supply on / Bill verified]"]:
+                    if after_bill_byte == self.reverse_replies["Power supply on / Bill verified"]:
                         after_bill_byte = self.read()
                     if self.accept_money_var:
                         if after_bill_byte == self.reverse_replies["Bill value 1"]:

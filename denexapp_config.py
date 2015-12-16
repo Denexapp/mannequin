@@ -27,7 +27,7 @@ payment_timeout = 5*60*1000
 payment_afterpay_time = 60*1000
 
 #Face detection
-face_close_size = 42
+face_close_size = 60
 face_min_size = 20
 face_pattern = "haarcascade_frontalface_alt.xml"
 
@@ -41,9 +41,9 @@ hand_time = 3000
 hand_direction = 1
 
 #Breathing
-breathing_pin = 15
-breathing_min = 850
-breathing_max = 1100
+breathing_pin = 24
+breathing_min = 0.8
+breathing_max = 2.3
 breathing_time = 3000
 
 #Led payment
@@ -51,7 +51,7 @@ led_payment_pin = 18
 led_payment_period = 3000
 
 #Money acceptor
-money_device = "/dev/ttyUSB0"
+money_device = "/dev/ttyAMA0"
 money_capacity = 100
 
 #Card_dispencer

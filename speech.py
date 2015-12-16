@@ -45,7 +45,6 @@ class speech():
         now = time.time()
         while now < middle_time:
             k = (now - start_time)/delta_t
-            print "Setting this to servo", dconfig.mouth_closed + delta_p*k
             self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
@@ -53,13 +52,11 @@ class speech():
                 break
         while now < end_time:
             k = 1 - (now - middle_time)/delta_t
-            print "Setting this to servo", dconfig.mouth_closed + delta_p*k
             self.servo.start(dconfig.mouth_closed + delta_p*k)
             time.sleep(0.03)
             now = time.time()
             if self.stop:
                 break
-        print "Setting this to servo", dconfig.mouth_closed
         self.servo.start(dconfig.mouth_closed)
 
     def __say_action(self,sound_path, markup):

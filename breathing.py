@@ -48,6 +48,9 @@ class breathing():
             self.position = (math.cos(self.counter)*0.5+0.5)*self.range+dconfig.breathing_min
             self.servo.start(self.position)
             time.sleep(0.03)
+            if self.stop:
+                print "Start breathing action stopped"
+                break
         """direct = 1
         val = 1000
         while True:
@@ -57,10 +60,8 @@ class breathing():
                 direct = 1
             val = val + 10 * direct
             self.servo.set_servo(dconfig.breathing_pin,val)
-            time.sleep(0.2)
-            if self.stop:
-                print "Start breathing action stopped"
-                break"""
+            time.sleep(0.2)"""
+
 
     def __stop_move_action(self):
         self.stop = True
@@ -73,6 +74,4 @@ class breathing():
             time.sleep(0.03)
             if self.stop == False:
                 break
-        if self.stop == True:
-            self.servo.stop()
         print "Stop breathing action stoped"
