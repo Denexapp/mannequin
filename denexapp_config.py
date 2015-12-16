@@ -22,7 +22,7 @@ repeat_time_pay_more = 20000
 magic_duration = 40000
 
 #Payment
-payment_price = 100
+payment_price = 200
 payment_timeout = 5*60*1000
 payment_afterpay_time = 60*1000
 
@@ -32,7 +32,7 @@ face_min_size = 20
 face_pattern = "haarcascade_frontalface_alt.xml"
 
 #Hand
-hand_pin = 10
+hand_pin = 13
 #parameters below require to use hand.py instead of hand_2,py
 hand_default = 1000
 hand_min = 800
@@ -42,7 +42,7 @@ hand_direction = 1
 
 #Breathing
 breathing_pin = 24
-breathing_min = 0.8
+breathing_min = 0.7
 breathing_max = 2.3
 breathing_time = 3000
 
@@ -55,5 +55,5 @@ money_device = "/dev/ttyAMA0"
 money_capacity = 100
 
 #Card_dispencer
-card_dispencer_pin = 4
+card_dispencer_pin = 27
 card_dispenser_capacity = 30

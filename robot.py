@@ -5,14 +5,6 @@ Uses some parts of Tony DiCola's pi-facerec-box project under MIT license
 
 import time
 
-cash_money = 0
-# amount of money inside
-cash_banknotes = 0
-# amount of banknotes
-cash_session = 0
-# amount of money got during current session
-cash_last_pay_time = time.time()
-# last time when a banknote was accepted
 #todo connect speech module, make voice markup
 #todo set config values
 #todo connect money acceptor through uart
@@ -33,8 +25,6 @@ import speech_markup
 if __name__ == "__main__":
     payment_state = 0
     # 0 - no money, 1 - part of money, 2 - enough money
-    cash_session = 0
-    # amount of money gotten in current session
     last_magic_time = time.time() - 2*dconfig.payment_afterpay_time
     # last time of prediction
 
@@ -46,23 +36,30 @@ if __name__ == "__main__":
     card_dispenser_object = card_dispenser.card_dispenser()
     money_acceptor_object = money_acceptor.money_acceptor()
 
-    money_acceptor_object.start_working()
+    money_acceptor_object.start()
     camera_object.start_detection()
     # 0 - no user, 1 - user is far, 2 - user is close
 
     print "Loop started"
     while True:
-        if money_acceptor_object.able_to_work() and card_dispenser_object.able_to_work():
-            breathing_object.stop_move()
-            led_payment_object.stop_blink()
-            money_acceptor_object.reject_money()
-            while True:
-                time.sleep(3)
+        #if money_acceptor_object.able_to_work() and card_dispenser_object.able_to_work():
+        #    breathing_object.stop_move()
+        #    led_payment_object.stop_blink()
+        #    money_acceptor_object.reject_money()
+        #    while True:
+        #        time.sleep(3)
         if payment_state == 0:
-            #todo ask should led_payment blink when human isn't close
+            #todo 2 knopki
+            #todo ubrat preryvanie_zvuka
+            #todo reset_functions
+            #todo crash camera ubrat'
             led_payment_object.start_blink()
             money_acceptor_object.accept_money()
             while (time.time() - last_magic_time) < (dconfig.payment_afterpay_time / 1000):
+                if money_acceptor_object.cash_session >= dconfig.payment_price:
+                    payment_state = 2
+                elif money_acceptor_object.cash_session > 0:
+                    payment_state = 1
                 if payment_state != 0:
                     break
                 time.sleep(0.2)
@@ -71,6 +68,10 @@ if __name__ == "__main__":
                 breathing_object.stop_move()
                 last_whisper_time = time.time() - dconfig.repeat_time_whisper / 1000
                 while True:
+                    if money_acceptor_object.cash_session >= dconfig.payment_price:
+                        payment_state = 2
+                    elif money_acceptor_object.cash_session > 0:
+                        payment_state = 1
                     if (time.time() - last_whisper_time) >= (dconfig.repeat_time_whisper / 1000):
                         last_whisper_time = time.time()
                         speech_object.say(speech_markup.sound_files[8], speech_markup.sound_markup[8])
@@ -82,6 +83,10 @@ if __name__ == "__main__":
                 breathing_object.start_move()
                 last_far_time = time.time() - (dconfig.repeat_time_far / 1000)
                 while True:
+                    if money_acceptor_object.cash_session >= dconfig.payment_price:
+                        payment_state = 2
+                    elif money_acceptor_object.cash_session > 0:
+                        payment_state = 1
                     if (time.time() - last_far_time) >= (dconfig.repeat_time_far / 1000):
                         speech_object.say(speech_markup.sound_files[2], speech_markup.sound_markup[2])
                         last_far_time = time.time()
@@ -92,6 +97,10 @@ if __name__ == "__main__":
                 breathing_object.start_move()
                 last_close_time = time.time() - (dconfig.repeat_time_close / 1000)
                 while True:
+                    if money_acceptor_object.cash_session >= dconfig.payment_price:
+                        payment_state = 2
+                    elif money_acceptor_object.cash_session > 0:
+                        payment_state = 1
                     if (time.time() - last_close_time) >= (dconfig.repeat_time_close / 1000):
                         last_close_time = time.time()
                         speech_object.say(speech_markup.sound_files[4], speech_markup.sound_markup[4])
@@ -102,29 +111,31 @@ if __name__ == "__main__":
             led_payment_object.start_blink()
             breathing_object.start_move()
             money_acceptor_object.accept_money()
-            last_pay_time = cash_last_pay_time
+            last_pay_time = money_acceptor_object.cash_last_pay_time
             last_paymore_speech_time = time.time() - (dconfig.repeat_time_pay_more / 1000)
             while True:
-                if cash_session >= dconfig.payment_price:
+                if money_acceptor_object.cash_session >= dconfig.payment_price:
                     payment_state = 2
                 if (time.time() - last_paymore_speech_time) > (dconfig.repeat_time_pay_more / 1000):
                     last_paymore_speech_time = time.time()
                     speech_object.say(speech_markup.sound_files[10], speech_markup.sound_markup[10])
-                if cash_last_pay_time != time.time():
-                    if cash_session < dconfig.payment_price:
+                if last_pay_time != money_acceptor_object.cash_last_pay_time:
+                    if money_acceptor_object.cash_session < dconfig.payment_price:
                         speech_object.say(speech_markup.sound_files[10], speech_markup.sound_markup[10])
-                    cash_last_pay_time = time.time()
-                if cash_session >= dconfig.payment_price:
+                    last_pay_time = money_acceptor_object.cash_last_pay_time
+                    last_paymore_speech_time = time.time()
+                if money_acceptor_object.cash_session >= dconfig.payment_price:
                     payment_state = 2
                 if (time.time() - last_pay_time) >= (dconfig.payment_timeout / 1000):
                     speech_object.say(speech_markup.sound_files[14], speech_markup.sound_markup[14])
                     time.sleep(10)
                     payment_state = 0
+                    money_acceptor_object.cash_session = 0
                 if payment_state != 1:
-                    cash_session = 0
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
+            money_acceptor_object.cash_session = 0
             led_payment_object.stop_blink()
             breathing_object.start_move()
             money_acceptor_object.reject_money()

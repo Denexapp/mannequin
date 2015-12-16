@@ -8,10 +8,6 @@ import math
 class money_acceptor(threading.Thread):
     # this wasn't the best idea to use 4 globals here
     # but it should work fine anyway
-    global cash_inside
-    global cash_session
-    global cash_banknotes
-    global cash_last_pay_time
 
     replies = {
         0x80: "[Device start byte]",
@@ -58,6 +54,7 @@ class money_acceptor(threading.Thread):
         self.cash_last_pay_time = time.time()
         self.cash_inside = file_io.read("cash_inside_file")
         self.cash_banknotes = file_io.read("cash_banknotes_file")
+        self.cash_session = 0
         self.accept_money_var = False
         self.ser = serial.Serial(dconfig.money_device, 9600)
 
