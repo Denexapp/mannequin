@@ -15,21 +15,24 @@ import subprocess
 import time
 import threading
 import denexapp_config as dconfig
+import speech_markup
 from my_servo import Servo
 
 class speech():
 
     def __init__(self):
-        #turn to default position
+        # turn to default position
         self.servo = Servo(dconfig.mouth_pin)
-        self.servo.start(dconfig.mouth_closed)
+        self.servo.start(0)
         self.stop = False
         self.stopped = True
         print "Speech.init ended"
         self.player = False
 
-    def say(self,sound_path, markup):
-        self.thread = threading.Thread(target=self.__say_action, args=(sound_path,markup))
+    def say(self, sound_id):
+        self.thread = threading.Thread(target=self.__say_action,
+                                       args=(speech_markup.sound_files[sound_id],
+                                             speech_markup.sound_markup[sound_id]))
         self.thread.daemon = True
         self.thread.start()
         print "Speech.say ended"
@@ -59,9 +62,7 @@ class speech():
                 break
         self.servo.start(dconfig.mouth_closed)
 
-    def __say_action(self,sound_path, markup):
-        if self.player:
-            self.player.terminate()
+    def __say_action(self, sound_path, markup):
         self.stop = True
         while self.stopped is False:
             time.sleep(0.05)
@@ -69,7 +70,7 @@ class speech():
         self.stop = False
         self.stopped = False
         sounds = markup.split(" ")
-        self.player = subprocess.Popen(["mpg321", "sounds/"+sound_path])
+        self.player_play(sound_path, 100)
         for sound in sounds:
             if self.stop:
                 break
@@ -86,12 +87,21 @@ class speech():
                 mouth_state = int(sound_parts[0])
                 sound_time = float(sound_parts[1])
                 if mouth_state == 1:
-                    self.__phrase(sound_time,dconfig.mouth_half_open)
+                    self.__phrase(sound_time, dconfig.mouth_half_open)
                 elif mouth_state == 2:
-                    self.__phrase(sound_time,dconfig.mouth_open)
+                    self.__phrase(sound_time, dconfig.mouth_open)
                 else:
                     pass
-        self.servo.start(dconfig.mouth_closed)
+        self.servo.start(0)
+        time.sleep(1)
         self.stop = False
         self.stopped = True
         print "Speech() in speech.py came to the end"
+
+    def now_saying(self):
+        return not self.stopped
+
+    def player_play(self, sound_path, volume):
+        if self.player:
+            self.player.terminate()
+        self.player = subprocess.Popen(["mpg321", "-g "+str(volume), "sounds/"+sound_path])

@@ -6,8 +6,6 @@ import denexapp_config as dconfig
 import math
 
 class money_acceptor(threading.Thread):
-    # this wasn't the best idea to use 4 globals here
-    # but it should work fine anyway
 
     replies = {
         0x80: "[Device start byte]",
@@ -54,23 +52,51 @@ class money_acceptor(threading.Thread):
         self.cash_last_pay_time = time.time()
         self.cash_inside = file_io.read("cash_inside_file")
         self.cash_banknotes = file_io.read("cash_banknotes_file")
+        self.capacity = file_io.read("cash_capacity_file")
+        if self.capacity == 0:
+            self.set_capacity(dconfig.money_capacity_default)
+        self.price = file_io.read("cash_price_file")
+        if self.price == 0:
+            self.set_price(dconfig.payment_price_default)
         self.cash_session = 0
         self.accept_money_var = False
+        self.money_send_warning = False
         self.ser = serial.Serial(dconfig.money_device, 9600)
 
     def able_to_work(self):
-        return self.cash_banknotes <= (dconfig.money_capacity - math.ceil(dconfig.payment_price/10))
+        return self.cash_banknotes <= (self.capacity - math.ceil(self.price/10))
+
+    def set_capacity(self, capacity):
+        self.capacity = capacity
+        file_io.write("cash_capacity_file", capacity)
+
+    def set_price(self, price):
+        self.price = price
+        file_io.write("cash_price_file", price)
+
+    def reset(self):
+        self.cash_inside = 0
+        self.cash_banknotes = 0
+        file_io.write("cash_inside_file", self.cash_inside)
+        file_io.write("cash_banknotes_file", self.cash_banknotes)
+        self.money_send_warning = False
+
+    def banknotes_inside(self):
+        return self.cash_banknotes
+
+    def money_inside(self):
+        return self.cash_inside
 
     def send(self, command):
-        print "->", command
+        print "money ->", command
         self.ser.write(chr(self.commands[command]))
 
     def read(self):
         message = ord(self.ser.read())
         if message in self.replies.keys():
-            print "<-", message, self.replies[message]
+            print "money <-", message, self.replies[message]
         else:
-            print "<-", message
+            print "money <-", message
         return message
 
     def add_cash(self, value):
@@ -80,12 +106,6 @@ class money_acceptor(threading.Thread):
         self.cash_last_pay_time = time.time()
         file_io.write("cash_inside_file", self.cash_inside)
         file_io.write("cash_banknotes_file", self.cash_banknotes)
-
-    def start_working(self):
-        # self.thread = threading.Thread(target=self.__start_working_action())
-        # self.thread.daemon = True
-        # self.thread.start()
-        self.__start_working_action()
 
     def accept_money(self):
         self.accept_money_var = True

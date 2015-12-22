@@ -15,6 +15,7 @@ class camera():
         self.camera = picam.OpenCVCapture()
         self.stop = False
         self.user_position = 0
+        self.last_update = time.time()
 
     def start_detection(self):
         thread = threading.Thread(target=self.__start_detection_action)
@@ -55,15 +56,21 @@ class camera():
                     minSize=(dconfig.face_min_size, dconfig.face_min_size),
                     flags=cv2.CASCADE_SCALE_IMAGE)
         if len(faces) > 1:
-            max_value = faces[0].w + faces[0].h
+            print "2 faces detected"
+            max_value = faces[0][2] + faces[0][3]
             max_id = 0
             counter = 0
             while counter < len(faces):
-                value = faces[counter].w + faces[counter].h
+                value = faces[counter][2] + faces[counter][3]
                 if value > max_value:
+                    max_value = value
                     max_id = counter
                 counter += 1
+            self.last_update = time.time()
             return faces[max_id]
-        if len(faces) < 1:
+        elif len(faces) < 1:
+            self.last_update = time.time()
             return None
-        return faces[0]
+        else:
+            self.last_update = time.time()
+            return faces[0]
