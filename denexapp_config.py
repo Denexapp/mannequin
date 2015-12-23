@@ -17,6 +17,8 @@ user_gone_timeout = 13000
 
 # Gsm
 gsm_device = "/dev/ttyACM0"
+gsm_phone1_default = 79999999999
+gsm_phone2_default = 79999999999
 
 # Music
 music_file = "music_1.mp3"
