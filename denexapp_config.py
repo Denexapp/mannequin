@@ -21,14 +21,14 @@ gsm_phone1_default = 79999999999
 gsm_phone2_default = 79999999999
 
 # Music
-music_file = "music_1.mp3"
-music_volume = 40
+music_file = ["music_1.mp3", "music_2.mp3", "music_3.mp3", "music_4.mp3", "music_5.mp3"]
+music_repeat_time = [(56*60+3)*1000, (26*60+5)*1000, (31*60+55)*1000, (22*60+48)*1000, (34*60+23)*1000]
+music_volume = 20
 
 # Speech repeat time
 repeat_time_far = 15000
 repeat_time_close = 15000
 repeat_time_pay_more = 20000
-repeat_time_music = 110*1000
 
 # Magic
 magic_duration = 36000
@@ -72,3 +72,6 @@ money_aware = 25
 card_dispenser_pin = 27
 card_dispenser_capacity_default = 30
 card_dispenser_aware = 10
+
+# Ups
+check_interval = 10000

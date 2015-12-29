@@ -38,13 +38,13 @@ class camera():
                 print ("Face size is ", result[2], "x", result[3])
                 if face_size >= dconfig.face_close_size:
                     self.user_position = 2
-                    print "User is close", time.time()
+                    #print "User is close", time.time()
                 else:
                     self.user_position = 1
-                    print "User is far", time.time()
+                    #print "User is far", time.time()
             else:
                 self.user_position = 0
-                print "User isn't seen", time.time()
+                #print "User isn't seen", time.time()
             if self.stop:
                 break
 

@@ -15,6 +15,7 @@ import card_dispenser
 import speech_markup
 import time
 import gsm
+import ups
 
 if __name__ == "__main__":
     speech_scenario = 1
@@ -38,6 +39,8 @@ if __name__ == "__main__":
     card_dispenser_object = card_dispenser.card_dispenser()
     money_acceptor_object = money_acceptor.money_acceptor()
     gsm_object = gsm.gsm(money_acceptor_object, card_dispenser_object)
+    ups_object = ups.ups(gsm_object)
+    ups_object.start_monitoring()
     money_acceptor_object.start()
     gsm_object.start()
     camera_object.start_detection()
@@ -49,7 +52,7 @@ if __name__ == "__main__":
         global last_camera_detection_time
         global last_close_state_time
         global last_far_state_time
-        if last_camera_detection_time <> camera_object.last_update:
+        if last_camera_detection_time != camera_object.last_update:
             last_camera_detection_time = camera_object.last_update
             if camera_object.user_position == 2:
                 last_close_state_time = time.time()
@@ -66,35 +69,39 @@ if __name__ == "__main__":
 
     print "Loop started"
     while True:
-        if not money_acceptor_object.able_to_work():
-            breathing_object.stop_move()
-            led_payment_object.stop_blink()
-            money_acceptor_object.reject_money()
-            print "not able to work: money box full"
-            gsm_object.send_status("money box full")
-            while True:
-                time.sleep(3)
-
-        if not card_dispenser_object.able_to_work():
-            breathing_object.stop_move()
-            led_payment_object.stop_blink()
-            money_acceptor_object.reject_money()
-            print "not able to work: out of cards"
-            gsm_object.send_status("cards out")
-            while True:
-                time.sleep(3)
-
-        if card_dispenser_object.cards_left() < dconfig.card_dispenser_aware\
-                and not card_dispenser_object.card_send_warning:
-            gsm_object.send_status("cards almost out")
-            card_dispenser_object.card_send_warning = True
-
-        if money_acceptor_object.capacity - money_acceptor_object.cash_banknotes\
-                < dconfig.money_aware and not money_acceptor_object.money_send_warning:
-            gsm_object.send_status("money box almost full")
-            money_acceptor_object.money_send_warning = True
-
         if payment_state == 0:
+            if not(money_acceptor_object.able_to_work() and
+                    card_dispenser_object.able_to_work() and
+                    ups_object.able_to_work()):
+                breathing_object.stop_move()
+                led_payment_object.stop_blink()
+                money_acceptor_object.reject_money()
+                if speech_object.player:
+                    speech_object.player.terminate()
+
+            if not money_acceptor_object.able_to_work():
+                print "not able to work: money box full"
+                gsm_object.send_status("money box full")
+
+            if not card_dispenser_object.able_to_work():
+                print "not able to work: out of cards"
+                gsm_object.send_status("cards out")
+
+            while not(money_acceptor_object.able_to_work() and
+                      card_dispenser_object.able_to_work() and
+                      ups_object.able_to_work()):
+                time.sleep(3)
+
+            if card_dispenser_object.cards_left() <= dconfig.card_dispenser_aware\
+                    and not card_dispenser_object.card_send_warning:
+                gsm_object.send_status("cards almost out")
+                card_dispenser_object.card_send_warning = True
+
+            if money_acceptor_object.capacity - money_acceptor_object.cash_banknotes\
+                    <= dconfig.money_aware and not money_acceptor_object.money_send_warning:
+                gsm_object.send_status("money box almost full")
+                money_acceptor_object.money_send_warning = True
+
             led_payment_object.start_blink()
             money_acceptor_object.accept_money()
             while (time.time() - last_magic_time) < (dconfig.payment_afterpay_time / 1000):
@@ -103,7 +110,7 @@ if __name__ == "__main__":
                     payment_state = 2
                 elif money_acceptor_object.cash_session > 0:
                     payment_state = 1
-                if payment_state != 0:
+                if payment_state != 0 or not ups_object.able_to_work():
                     break
                 time.sleep(0.2)
             set_user_position()
@@ -120,7 +127,7 @@ if __name__ == "__main__":
                         last_close_time = time.time()
                         speech_object.say(speech_markup.sound_scenarios[speech_scenario][1])
                     time.sleep(0.2)
-                    if get_user_position() != 2 or payment_state != 0:
+                    if get_user_position() != 2 or payment_state != 0 or not ups_object.able_to_work():
                         break
             elif get_user_position() == 1:
                 breathing_object.start_move()
@@ -135,23 +142,23 @@ if __name__ == "__main__":
                         speech_object.say(speech_markup.sound_scenarios[speech_scenario][0])
                         last_far_time = time.time()
                     time.sleep(0.2)
-                    if get_user_position() != 1 or payment_state != 0:
+                    if get_user_position() != 1 or payment_state != 0 or not ups_object.able_to_work():
                         break
             elif get_user_position() == 0:
                 breathing_object.stop_move()
-                last_music_time = time.time() - dconfig.repeat_time_music
+                last_music_time = time.time() - 2 * dconfig.music_repeat_time[speech_scenario]
                 while True:
                     set_user_position()
                     if money_acceptor_object.cash_session >= money_acceptor_object.price:
                         payment_state = 2
                     elif money_acceptor_object.cash_session > 0:
                         payment_state = 1
-                    if (time.time() - last_music_time) >= (dconfig.repeat_time_music / 1000)\
+                    if (time.time() - last_music_time) >= (dconfig.music_repeat_time[speech_scenario] / 1000)\
                             and not speech_object.now_saying():
                         last_music_time = time.time()
-                        speech_object.player_play(dconfig.music_file, dconfig.music_volume)
+                        speech_object.player_play(dconfig.music_file[speech_scenario], dconfig.music_volume)
                     time.sleep(0.2)
-                    if get_user_position() != 0 or payment_state != 0:
+                    if get_user_position() != 0 or payment_state != 0 or not ups_object.able_to_work():
                         break
         elif payment_state == 1:
             led_payment_object.start_blink()

@@ -12,12 +12,12 @@ class gsm(threading.Thread):
 
         self.phone1 = file_io.read("gsm_phone1_file")
         if self.phone1 == 0:
-            self.phone1(dconfig.gsm_phone1_default)
+            self.phone1 = dconfig.gsm_phone1_default
             file_io.write("gsm_phone1_file", self.phone1)
 
         self.phone2 = file_io.read("gsm_phone2_file")
         if self.phone2 == 0:
-            self.phone2(dconfig.gsm_phone2_default)
+            self.phone2 = dconfig.gsm_phone2_default
             file_io.write("gsm_phone2_file", self.phone2)
 
         threading.Thread.__init__(self)
@@ -49,7 +49,7 @@ class gsm(threading.Thread):
 
     def power_on(self):
         time.sleep(5)
-        self.send('z')
+        self.send('Z')
         while True:
             if self.new_ser.inWaiting():
                 if self.read() == 'n':
@@ -123,12 +123,17 @@ class gsm(threading.Thread):
         self.send(self.card_dispenser_object.capacity)
         self.send('p')
 
+    def send_no_power(self):
+        self.send('u')
+
+    def send_power_on(self):
+        self.send('v')
+
     def __start_working_action(self):
         print self.new_ser.name
         while True:
             time.sleep(0.01)
             if self.new_ser.inWaiting():
-                print "ser.inWaiting"
                 response = self.read()
 
                 if response == 'a':
