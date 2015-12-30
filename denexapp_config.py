@@ -62,6 +62,9 @@ breathing_time = 3000
 led_payment_pin = 18
 led_payment_period = 3000
 led_lamp_pin = 12
+led_card_pin = 16
+led_waiting_pin = 5
+led_magic_pin = 6
 
 # Money acceptor
 money_device = "/dev/ttyAMA0"

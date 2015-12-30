@@ -36,6 +36,9 @@ if __name__ == "__main__":
     speech_object = speech.speech()
     led_payment_object = led.led(dconfig.led_payment_pin, dconfig.led_payment_period)
     led_lamp_object = led.led(dconfig.led_lamp_pin, 0)
+    led_waiting_object = led.led(dconfig.led_waiting_pin, 0)
+    led_magic_object = led.led(dconfig.led_magic_pin, 0)
+    led_card_object = led.led(dconfig.led_card_pin, 0)
     card_dispenser_object = card_dispenser.card_dispenser()
     money_acceptor_object = money_acceptor.money_acceptor()
     gsm_object = gsm.gsm(money_acceptor_object, card_dispenser_object)
@@ -70,6 +73,8 @@ if __name__ == "__main__":
     print "Loop started"
     while True:
         if payment_state == 0:
+            led_waiting_object.start_blink()
+
             if not(money_acceptor_object.able_to_work() and
                     card_dispenser_object.able_to_work() and
                     ups_object.able_to_work()):
@@ -161,6 +166,7 @@ if __name__ == "__main__":
                     if get_user_position() != 0 or payment_state != 0 or not ups_object.able_to_work():
                         break
         elif payment_state == 1:
+            led_waiting_object.start_blink()
             led_payment_object.start_blink()
             breathing_object.start_move()
             money_acceptor_object.accept_money()
@@ -192,10 +198,12 @@ if __name__ == "__main__":
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
+            led_waiting_object.stop_blink()
             money_acceptor_object.cash_session = 0
             led_payment_object.stop_blink()
             breathing_object.start_move()
             money_acceptor_object.reject_money()
+            led_magic_object.start_blink()
             time.sleep(1)
             led_lamp_object.start_blink()
             time.sleep(1)
@@ -207,7 +215,11 @@ if __name__ == "__main__":
             card_dispenser_object.give_card()
             hand_object.stop_move()
             speech_object.say(speech_markup.sound_scenarios[speech_scenario][2])
+            led_card_object.start_blink()
+            time.sleep(8)
+            led_card_object.stop_blink()
             breathing_object.stop_move()
+            led_magic_object.stop_blink()
             payment_state = 0
             last_magic_time = time.time()
             speech_scenario += 1
