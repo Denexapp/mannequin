@@ -6,7 +6,6 @@ import denexapp_config as dconfig
 import math
 
 class money_acceptor(threading.Thread):
-
     replies = {
         0x80: "[Device start byte]",
         0x8f: "Power supply on / Bill verified",

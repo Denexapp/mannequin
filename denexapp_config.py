@@ -17,8 +17,8 @@ user_gone_timeout = 13000
 
 # Gsm
 gsm_device = "/dev/ttyACM0"
-gsm_phone1_default = 79999999999
-gsm_phone2_default = 79999999999
+gsm_phone1_default = 79922168514
+gsm_phone2_default = 79922168514
 
 # Music
 music_file = ["music_1.mp3", "music_2.mp3", "music_3.mp3", "music_4.mp3", "music_5.mp3"]
@@ -77,4 +77,6 @@ card_dispenser_capacity_default = 30
 card_dispenser_aware = 10
 
 # Ups
-check_interval = 10000
+check_interval = 1000
+vendor_id = 0x0001
+product_id = 0x0000
