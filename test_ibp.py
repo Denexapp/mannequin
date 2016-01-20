@@ -1,5 +1,7 @@
 import time
 import sys
+import usb.core
+import usb.util
 
 class ups(object):
     def attach(self):
@@ -19,7 +21,27 @@ class ups(object):
         if self._had_driver:
             self._dev.attach_kernel_driver(0)
 
-
+    def battery_status(self):
+        while True:
+            try:
+                self.attach()
+            except:
+                print sys.exc_info()
+            try:
+                ret = usb.util.get_string(self._dev, 0x03, langid=0x0409)
+                if ret[0] == "(" and ret[38] == "0":
+                    self.online = True
+                    print "online"
+                else:
+                    self.online = False
+                    print "offline"
+            except:
+                print sys.exc_info()
+            try:
+                self.release()
+            except:
+                print sys.exc_info()
+            time.sleep(0.5)
 
 a = ups()
 a.battery_status()

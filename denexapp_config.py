@@ -23,7 +23,7 @@ gsm_phone2_default = 79922168514
 # Music
 music_file = ["music_1.mp3", "music_2.mp3", "music_3.mp3", "music_4.mp3", "music_5.mp3"]
 music_repeat_time = [(56*60+3)*1000, (26*60+5)*1000, (31*60+55)*1000, (22*60+48)*1000, (34*60+23)*1000]
-music_volume = 20
+music_volume = 18
 
 # Speech repeat time
 repeat_time_far = 15000

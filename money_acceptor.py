@@ -61,6 +61,7 @@ class money_acceptor(threading.Thread):
         self.accept_money_var = False
         self.money_send_warning = False
         self.ser = serial.Serial(dconfig.money_device, 9600)
+        self.initialized = True
 
     def able_to_work(self):
         return self.cash_banknotes <= (self.capacity - math.ceil(self.price/10))
@@ -125,8 +126,10 @@ class money_acceptor(threading.Thread):
                 response = self.read()
 
                 # init
-                if response == self.reverse_replies["Power supply on / Bill verified"]:
+                if response == self.reverse_replies["Power supply on / Bill verified"]\
+                        and self.initialized is False:
                     self.send("accept")
+                    self.initialized = True
 
                 # disable inhibit mode
                 if response == self.reverse_replies["Communication failed"]:
@@ -137,17 +140,28 @@ class money_acceptor(threading.Thread):
                     after_bill_byte = self.read()
                     if after_bill_byte == self.reverse_replies["Power supply on / Bill verified"]:
                         after_bill_byte = self.read()
-                    if self.accept_money_var:
+                    if self.accept_money_var is True:
                         if after_bill_byte == self.reverse_replies["Bill value 1"]:
                             self.send("accept")
                             self.add_cash(10)
+                            print "10 accept sent"
                         elif after_bill_byte == self.reverse_replies["Bill value 2"]:
                             self.send("accept")
                             self.add_cash(50)
+                            print "50 accept sent"
                         elif after_bill_byte == self.reverse_replies["Bill value 3"]:
                             self.send("accept")
                             self.add_cash(100)
+                            print "100 accept sent"
                         else:
-                            self.send("reject")
+                            #self.send("reject")
+                            print "reject sent, accept money is true"
+                            time.sleep(7)
+                            self.initialized = False
+                            self.send("enable")
                     else:
-                        self.send("reject")
+                        #print "reject sent"
+                        print "reject, accept money is false"
+                        time.sleep(7)
+                        self.initialized = False
+                        self.send("enable")

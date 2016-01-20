@@ -18,7 +18,7 @@ import gsm
 import ups
 
 if __name__ == "__main__":
-    speech_scenario = 1
+    speech_scenario = 0
     payment_state = 0
     # 0 - no money, 1 - part of money, 2 - enough money
     last_magic_time = time.time() - 2*dconfig.payment_afterpay_time
@@ -47,6 +47,9 @@ if __name__ == "__main__":
     money_acceptor_object.start()
     gsm_object.start()
     camera_object.start_detection()
+    time.sleep(1)
+    gsm_object.send_power_on()
+    time.sleep(4)
     # 0 - no user, 1 - user is far, 2 - user is close
 
     last_camera_detection_time = camera_object.last_update
@@ -75,6 +78,7 @@ if __name__ == "__main__":
         if payment_state == 0:
             led_waiting_object.start_blink()
 
+            print "Scenario is", speech_scenario
             if not(money_acceptor_object.able_to_work() and
                     card_dispenser_object.able_to_work() and
                     ups_object.able_to_work()):
@@ -198,6 +202,7 @@ if __name__ == "__main__":
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
+            gsm_object.send_status("")
             led_waiting_object.stop_blink()
             money_acceptor_object.cash_session = 0
             led_payment_object.stop_blink()
@@ -214,8 +219,9 @@ if __name__ == "__main__":
             led_lamp_object.stop_blink()
             card_dispenser_object.give_card()
             hand_object.stop_move()
-            speech_object.say(speech_markup.sound_scenarios[speech_scenario][2])
             led_card_object.start_blink()
+            time.sleep(5)
+            speech_object.say(speech_markup.sound_scenarios[speech_scenario][2])
             time.sleep(8)
             led_card_object.stop_blink()
             breathing_object.stop_move()
@@ -223,5 +229,5 @@ if __name__ == "__main__":
             payment_state = 0
             last_magic_time = time.time()
             speech_scenario += 1
-            if speech_scenario > 5:
-                speech_scenario = 1
+            if speech_scenario > 4:
+                speech_scenario = 0

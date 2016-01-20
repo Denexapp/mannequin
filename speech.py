@@ -38,7 +38,6 @@ class speech():
         print "Speech.say ended"
 
     def __phrase(self,sound_time_milisecons, angle):
-        print "Phrase to angle", angle, "with time", sound_time_milisecons, "started."
         sound_time = float(sound_time_milisecons) / 1000
         start_time = time.time()
         middle_time = start_time + (sound_time/2)
@@ -80,7 +79,7 @@ class speech():
                 elif sound == "2":
                     self.__phrase(dconfig.mouth_sound_time, dconfig.mouth_open)
                 else:
-                    print "Sleep for", float(sound)/1000, "started"
+                    self.servo.start(0)
                     time.sleep(float(sound)/1000)
             else:
                 sound_parts = sound.split("~")

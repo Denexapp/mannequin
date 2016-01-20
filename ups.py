@@ -8,6 +8,7 @@ import usb.core
 import usb.util
 import denexapp_config as dconfig
 import time
+import sys
 
 class ups():
 
@@ -28,19 +29,25 @@ class ups():
 
     def __start_monitoring_action(self):
         self.stop = False
-        time.sleep(12)
+        time.sleep(13)
+        print "started_monitor"
         while True:
             self.battery_status_update()
-            if self.online:
-                if not self.warning_sent:
+            print "Warning sent ==", self.warning_sent, "self.online ==", self.online
+            if self.online is False:
+                if self.warning_sent is False:
+                    print "sms sending started"
                     self.gsm_object.send_no_power()
                     self.ready_to_work = False
                     self.warning_sent = True
+                    print "sms sent"
             else:
                 if self.warning_sent is True:
+                    print "sms sending started"
                     self.gsm_object.send_power_on()
                     self.ready_to_work = True
                     self.warning_sent = False
+                    print "sms sent"
             time.sleep(dconfig.check_interval/1000)
             if self.stop:
                 break
@@ -66,21 +73,24 @@ class ups():
             self._dev.attach_kernel_driver(0)
 
     def battery_status_update(self):
-        while True:
-            try:
-                self.attach()
-            except:
-                pass
-            try:
-                ret = usb.util.get_string(self._dev, 0x03, langid=0x0409)
-                if ret[0] == "(" and ret[38] == "0":
+        try:
+            self.attach()
+        except:
+            print sys.exc_info()
+        try:
+            ret = usb.util.get_string(self._dev, 0x03, langid=0x0409)
+            print ret
+            if ret[0] == "(":
+                if ret[38] == "0":
                     self.online = True
-                else:
+                    print "online"
+                elif ret[38] == "1":
                     self.online = False
-            except:
-                pass
-            try:
-                self.release()
-            except:
-                pass
-            time.sleep(0.5)
+                    print "offline"
+        except:
+            print sys.exc_info()
+        try:
+            self.release()
+        except:
+            print sys.exc_info()
+        time.sleep(0.5)
