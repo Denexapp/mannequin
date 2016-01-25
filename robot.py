@@ -111,8 +111,8 @@ if __name__ == "__main__":
                 gsm_object.send_status("money box almost full")
                 money_acceptor_object.money_send_warning = True
 
-            led_payment_object.start_blink()
             money_acceptor_object.accept_money()
+            relax_break = False
             while (time.time() - last_magic_time) < (dconfig.payment_afterpay_time / 1000):
                 set_user_position()
                 if money_acceptor_object.cash_session >= money_acceptor_object.price:
@@ -120,10 +120,15 @@ if __name__ == "__main__":
                 elif money_acceptor_object.cash_session > 0:
                     payment_state = 1
                 if payment_state != 0 or not ups_object.able_to_work():
+                    relax_break = True
                     break
                 time.sleep(0.2)
+            if relax_break:
+                continue
+
             set_user_position()
             if get_user_position() == 2:
+                led_payment_object.start_blink()
                 breathing_object.start_move()
                 while True:
                     set_user_position()
@@ -139,6 +144,7 @@ if __name__ == "__main__":
                     if get_user_position() != 2 or payment_state != 0 or not ups_object.able_to_work():
                         break
             elif get_user_position() == 1:
+                led_payment_object.start_blink()
                 breathing_object.start_move()
                 while True:
                     set_user_position()
@@ -154,6 +160,7 @@ if __name__ == "__main__":
                     if get_user_position() != 1 or payment_state != 0 or not ups_object.able_to_work():
                         break
             elif get_user_position() == 0:
+                led_payment_object.stop_blink()
                 breathing_object.stop_move()
                 last_music_time = time.time() - 2 * dconfig.music_repeat_time[speech_scenario]
                 while True:
@@ -189,7 +196,7 @@ if __name__ == "__main__":
                         speech_object.say(10)
                     last_pay_time = money_acceptor_object.cash_last_pay_time
                     last_paymore_speech_time = time.time()
-                if ((dconfig.payment_timeout - (time.time() - last_pay_time)) <= 2 * 60) and (two_minutes_left_said is False) \
+                if ((dconfig.payment_timeout/1000 - (time.time() - last_pay_time)) <= 2 * 60) and (two_minutes_left_said is False) \
                         and (speech_object.now_saying() is False):
                     speech_object.say(7)
                     two_minutes_left_said = True
@@ -202,12 +209,13 @@ if __name__ == "__main__":
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
-            gsm_object.send_status("")
-            led_waiting_object.stop_blink()
-            money_acceptor_object.cash_session = 0
             led_payment_object.stop_blink()
-            breathing_object.start_move()
+            money_acceptor_object.cash_session = 0
             money_acceptor_object.reject_money()
+            while speech_object.now_saying():
+                time.sleep(0.2)
+            breathing_object.start_move()
+            led_waiting_object.stop_blink()
             led_magic_object.start_blink()
             time.sleep(1)
             led_lamp_object.start_blink()

@@ -8,8 +8,8 @@ time should be in ms
 # Speech
 mouth_pin = 23
 mouth_closed = 0.9
-mouth_half_open = 1.4
-mouth_open = 1.7
+mouth_half_open = 1.5
+mouth_open = 1.9
 mouth_sound_time = 220
 
 # Behaviour
@@ -17,18 +17,18 @@ user_gone_timeout = 13000
 
 # Gsm
 gsm_device = "/dev/ttyACM0"
-gsm_phone1_default = 79922168514
-gsm_phone2_default = 79922168514
+gsm_phone1_default = 79999999999
+gsm_phone2_default = 79999999999
 
 # Music
 music_file = ["music_1.mp3", "music_2.mp3", "music_3.mp3", "music_4.mp3", "music_5.mp3"]
-music_repeat_time = [(56*60+3)*1000, (26*60+5)*1000, (31*60+55)*1000, (22*60+48)*1000, (34*60+23)*1000]
+music_repeat_time = [(19*60+54)*1000, (26*60+5)*1000, (31*60+55)*1000, (22*60+48)*1000, (34*60+23)*1000]
 music_volume = 18
 
 # Speech repeat time
 repeat_time_far = 15000
 repeat_time_close = 15000
-repeat_time_pay_more = 20000
+repeat_time_pay_more = 45000
 
 # Magic
 magic_duration = 36000
@@ -55,12 +55,13 @@ hand_direction = 1
 # Breathing
 breathing_pin = 24
 breathing_min = 0.8
-breathing_max = 2
+breathing_max = 2.3
 breathing_time = 3000
+breathing_delay = 2000
 
 # Led
 led_payment_pin = 18
-led_payment_period = 3000
+led_payment_period = 0
 led_lamp_pin = 12
 led_card_pin = 16
 led_waiting_pin = 5

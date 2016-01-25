@@ -37,16 +37,30 @@ class breathing():
     def __start_move_action(self):
         self.stop=False
         print "Start breathing action started"
+        paused = False
+        first_pause = True
+        pause_time = time.time()
         while True:
-            self.counter += self.delta*self.direction
-            if self.direction == -1:
-                if self.counter + self.delta*self.direction < -math.pi:
-                    self.direction = 1
-            elif self.direction == 1:
-                if self.counter + self.delta*self.direction > 0:
-                    self.direction = -1
-            self.position = (math.cos(self.counter)*0.5+0.5)*self.range+dconfig.breathing_min
-            self.servo.start(self.position)
+            if paused:
+                if pause_time + dconfig.breathing_delay/1000 < time.time():
+                    paused = False
+            else:
+                self.position = (math.cos(self.counter)*0.5+0.5)*self.range+dconfig.breathing_min
+                self.servo.start(self.position)
+                self.counter += self.delta*self.direction
+                if self.direction == -1:
+                    if self.counter + self.delta*self.direction < -math.pi:
+                        self.direction = 1
+                        if first_pause is False:
+                            paused = True
+                            pause_time = time.time()
+                            self.position = dconfig.breathing_min
+                            self.servo.start(0)
+                        else:
+                            first_pause = False
+                elif self.direction == 1:
+                    if self.counter + self.delta*self.direction > 0:
+                        self.direction = -1
             time.sleep(0.03)
             if self.stop:
                 print "Start breathing action stopped"
