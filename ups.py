@@ -11,7 +11,6 @@ import time
 import sys
 
 class ups():
-
     def __init__(self, gsm_object):
         self.warning_sent = False
         self.ready_to_work = True
@@ -33,7 +32,7 @@ class ups():
         print "started_monitor"
         while True:
             self.battery_status_update()
-            print "Warning sent ==", self.warning_sent, "self.online ==", self.online
+            # print "Warning sent ==", self.warning_sent, "self.online ==", self.online
             if self.online is False:
                 if self.warning_sent is False:
                     print "sms sending started"
@@ -79,14 +78,14 @@ class ups():
             print sys.exc_info()
         try:
             ret = usb.util.get_string(self._dev, 0x03, langid=0x0409)
-            print ret
+            # print ret
             if ret[0] == "(":
                 if ret[38] == "0":
                     self.online = True
-                    print "online"
+                    # print "online"
                 elif ret[38] == "1":
                     self.online = False
-                    print "offline"
+                    # print "offline"
         except:
             print sys.exc_info()
         try:

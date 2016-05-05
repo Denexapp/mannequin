@@ -8,14 +8,16 @@ import threading
 import denexapp_config as dconfig
 import picam
 import time
+import sys
+import file_io
 
 class camera():
-
     def __init__(self):
         self.camera = picam.OpenCVCapture()
         self.stop = False
         self.user_position = 0
         self.last_update = time.time()
+        print "init"
 
     def start_detection(self):
         thread = threading.Thread(target=self.__start_detection_action)
@@ -27,10 +29,22 @@ class camera():
 
     def __start_detection_action(self):
         self.stop=False
+        print "detection started"
         while True:
-            image = self.camera.read()
+            print "while loop next iteration"
+            print "debug_0"
+            try:
+                image = self.camera.read()
+            except BaseException as e:
+                print sys.exc_info()[0]
+                # file_io.write("camerapy_error.txt", e.message + "\n" + str(e.args) + "\n" + str(e) + "\n" + str(e))
+                # continue
+                raise
+            print "debug_1"
             image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            print "debug_2"
             image = cv2.resize(image, (0, 0), fx=0.6, fy=0.6)
+            print "debug_3"
             cv2.imwrite('captureResized.pgm', image)
             result = self.detect_single(image)
             if result != None:
@@ -38,13 +52,13 @@ class camera():
                 print ("Face size is ", result[2], "x", result[3])
                 if face_size >= dconfig.face_close_size:
                     self.user_position = 2
-                    #print "User is close", time.time()
+                    print "User is close", time.time()
                 else:
                     self.user_position = 1
-                    #print "User is far", time.time()
+                    print "User is far", time.time()
             else:
                 self.user_position = 0
-                #print "User isn't seen", time.time()
+                print "User isn't seen", time.time()
             if self.stop:
                 break
 

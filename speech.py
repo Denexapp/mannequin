@@ -29,10 +29,15 @@ class speech():
         print "Speech.init ended"
         self.player = False
 
-    def say(self, sound_id):
-        self.thread = threading.Thread(target=self.__say_action,
+    def say(self, sound_id, v=1):
+        if v == 1:
+            self.thread = threading.Thread(target=self.__say_action,
                                        args=(speech_markup.sound_files[sound_id],
                                              speech_markup.sound_markup[sound_id]))
+        elif v == 2:
+            self.thread = threading.Thread(target=self.__say_action,
+                                       args=(speech_markup.sound_files_2[sound_id],
+                                             speech_markup.sound_markup_2[sound_id]))
         self.thread.daemon = True
         self.thread.start()
         print "Speech.say ended"
@@ -99,6 +104,22 @@ class speech():
 
     def now_saying(self):
         return not self.stopped
+
+    def sound_length(self, sound_id):
+        length = 0.0
+        markup = speech_markup.sound_markup[sound_id]
+        sounds = markup.split(" ")
+        for sound in sounds:
+            if sound.find("~") == -1:
+                if (sound == "1") or (sound == "2"):
+                    length += dconfig.mouth_sound_time
+                else:
+                    length += int(sound)
+            else:
+                sound_parts = sound.split("~")
+                length += float(sound_parts[1])
+        print "length is", length
+        return length
 
     def player_play(self, sound_path, volume):
         if self.player:

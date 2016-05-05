@@ -1,9 +1,10 @@
 import speech
 import time
+import denexapp_config as dconfig
 
 if __name__ == '__main__':
     speech_object = speech.speech()
-    val = 51
+    val = 9
     ask_val = True
     if ask_val:
         while True:
