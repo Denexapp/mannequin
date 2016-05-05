@@ -13,13 +13,16 @@ import RPi.GPIO as GPIO
 
 
 class motion_detector:
-    def __init__(self, pin):
+    def __init__(self, pin, power_pin):
         self.stop = False  # detection stops if True
         self.pin = pin  # number of pin used for m/d
+        self.power_pin = power_pin  # power_pin gives power to detector
         self.is_user = 0  # does m.d. is noticing motion or not
         self.last_update = time.time()  # last time when m.d. checked for people
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.IN)  # configuration pin to input mode
+        GPIO.setup(self.power_pin, GPIO.OUT)
+        GPIO.output(self.power_pin, 1)
 
     def start_detection(self):
         thread = threading.Thread(target=self._detection_process)

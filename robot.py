@@ -35,7 +35,6 @@ if __name__ == "__main__":
     last_far_state_time = time.time() - 2 * dconfig.user_gone_timeout / 1000
 
     # camera_object = camera.camera()
-    motion_detector_object = motion_detector.motion_detector(dconfig.motion_detector_pin)
     hand_object = hand.hand()
     breathing_object = breathing.breathing()
     speech_object = speech.speech()
@@ -44,11 +43,14 @@ if __name__ == "__main__":
     led_waiting_object = led.led(dconfig.led_waiting_pin, 0)
     led_magic_object = led.led(dconfig.led_magic_pin, 0)
     led_card_object = led.led(dconfig.led_card_pin, 0)
+    motion_detector_object = motion_detector.motion_detector(
+        dconfig.motion_detector_pin, dconfig.motion_detector_power_pin)
     card_dispenser_object = card_dispenser.card_dispenser()
     money_acceptor_object = money_acceptor.money_acceptor()
     gsm_object = gsm.gsm(money_acceptor_object, card_dispenser_object)
     ups_object = ups.ups(gsm_object)
     #  super button object
+    #todo
     super_button_object = super_button.SuperButton(speech_object, led_lamp_object, led_magic_object, hand_object)
     super_button_object.activate_button()
     ups_object.start_monitoring()
@@ -95,11 +97,13 @@ if __name__ == "__main__":
     while True:
         if payment_state == 0:  # no money
             led_waiting_object.start_blink()
+            super_button_object.unblock_button()
 
             print "Scenario is", speech_scenario
             if not(money_acceptor_object.able_to_work() and
                     card_dispenser_object.able_to_work() and
                     ups_object.able_to_work()):
+                # todo
                 super_button_object.block_button()
                 breathing_object.stop_move()
                 led_payment_object.stop_blink()
@@ -212,6 +216,7 @@ if __name__ == "__main__":
                     if get_user_position() != 0 or payment_state != 0 or not ups_object.able_to_work():
                         break
         elif payment_state == 1:
+            super_button_object.block_button()
             led_waiting_object.start_blink()
             led_payment_object.start_blink()
             breathing_object.start_move()
@@ -244,6 +249,7 @@ if __name__ == "__main__":
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
+            super_button_object.block_button()
             led_payment_object.stop_blink()
             money_acceptor_object.cash_session = 0
             money_acceptor_object.reject_money()

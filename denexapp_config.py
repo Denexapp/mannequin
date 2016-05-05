@@ -25,7 +25,7 @@ gsm_phone2_default = 79826301445
 # Music
 music_file = ["music_1.mp3", "music_2.mp3", "music_3.mp3", "music_4.mp3", "music_5.mp3"]
 music_repeat_time = [(19*60+54)*1000, (26*60+5)*1000, (31*60+55)*1000, (22*60+48)*1000, (34*60+23)*1000]
-music_volume = 18
+music_volume = 9
 
 # Speech repeat time
 repeat_time_far = 10000
@@ -36,8 +36,9 @@ repeat_time_pay_more = 45000
 magic_duration = 36000
 
 # Super button
-super_button_pin = 26
-super_button_led_pin = 19
+super_button_pin = 20
+super_button_led_pin = 17
+super_button_led_blink_period = 1000
 super_button_phase_duration = 5000
 super_button_blocking_time = 90*1000
 super_button_presses_in_a_row_allowed = 3
@@ -65,14 +66,16 @@ hand_direction = 1
 #breathing_pin = 24
 breathing_pin = 24
 #breathing_min = 0.8
-breathing_min = 0.9
+breathing_min = 0.8
 #breathing_max = 2.3
-breathing_max = 1.9
+breathing_max = 2.3
 breathing_time = 3000
 breathing_delay = 2000
 
 # Motion detector
-motion_detector_pin = 25
+# these pins should be in a row: power_pin, pin, ground
+motion_detector_power_pin = 19
+motion_detector_pin = 26
 
 # Led
 led_payment_pin = 18
