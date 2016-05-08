@@ -47,3 +47,4 @@ class motion_detector:
                     print "something is moving"
                     self.is_user = 1
             self.last_update = time.time()
+            time.sleep(0.1)

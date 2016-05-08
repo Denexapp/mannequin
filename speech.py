@@ -53,6 +53,7 @@ class speech():
         while now < middle_time:
             k = (now - start_time)/delta_t
             self.servo.start(dconfig.mouth_closed + delta_p*k)
+            print dconfig.mouth_closed + delta_p*k
             time.sleep(0.03)
             now = time.time()
             if self.stop:
@@ -60,6 +61,7 @@ class speech():
         while now < end_time:
             k = 1 - (now - middle_time)/delta_t
             self.servo.start(dconfig.mouth_closed + delta_p*k)
+            print dconfig.mouth_closed + delta_p * k
             time.sleep(0.03)
             now = time.time()
             if self.stop:
@@ -124,4 +126,5 @@ class speech():
     def player_play(self, sound_path, volume):
         if self.player:
             self.player.terminate()
-        self.player = subprocess.Popen(["mpg321", "-g "+str(volume), "sounds/"+sound_path])
+        self.player = subprocess.Popen(["mpg321", "-g "+str(volume), "-q", "sounds/"+sound_path])
+

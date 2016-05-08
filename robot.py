@@ -49,10 +49,10 @@ if __name__ == "__main__":
     money_acceptor_object = money_acceptor.money_acceptor()
     gsm_object = gsm.gsm(money_acceptor_object, card_dispenser_object)
     ups_object = ups.ups(gsm_object)
-    #  super button object
-    #todo
+
     super_button_object = super_button.SuperButton(speech_object, led_lamp_object, led_magic_object, hand_object)
     super_button_object.activate_button()
+
     ups_object.start_monitoring()
     money_acceptor_object.start()
     gsm_object.start()
@@ -97,7 +97,6 @@ if __name__ == "__main__":
     while True:
         if payment_state == 0:  # no money
             led_waiting_object.start_blink()
-            super_button_object.unblock_button()
 
             print "Scenario is", speech_scenario
             if not(money_acceptor_object.able_to_work() and
@@ -249,6 +248,7 @@ if __name__ == "__main__":
                     break
                 time.sleep(0.2)
         elif payment_state == 2:
+            super_button_object.is_magic_now = True
             super_button_object.block_button()
             led_payment_object.stop_blink()
             money_acceptor_object.cash_session = 0
@@ -280,5 +280,7 @@ if __name__ == "__main__":
             speech_scenario += 1
             speech_welcome_phrase = 0
             speech_pay_phrase = 0
+            super_button_object.is_magic_now = False
+            super_button_object.unblock_button()
             if speech_scenario > 4:
                 speech_scenario = 0

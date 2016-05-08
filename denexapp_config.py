@@ -8,9 +8,9 @@ sudo
 # Speech
 #mouth_pin = 23
 mouth_pin = 23
-mouth_closed = 0.9
-mouth_half_open = 1.5
-mouth_open = 1.9
+mouth_closed = 2.5
+mouth_half_open = 3.1
+mouth_open = 3.5
 mouth_sound_time = 220
 mouth_recognition_max = 60000
 
@@ -40,7 +40,7 @@ super_button_pin = 20
 super_button_led_pin = 17
 super_button_led_blink_period = 1000
 super_button_phase_duration = 5000
-super_button_blocking_time = 90*1000
+super_button_blocking_time = 30*1000
 super_button_presses_in_a_row_allowed = 3
 
 # Payment
